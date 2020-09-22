@@ -19,11 +19,16 @@ public class GetRequest implements iGetRequest {
     public void sendRequest(String url, int port) {
 
         try{
+            /**For the bonus questions with redirects, you should use the simple constructor
+             * and dynamically bind the sockets to a url at runtime
+             * 
+            */
             socket = new Socket(url, port);
-            //printWriter = new PrintWriter(socket.getOutputStream());
 
-            //writeGetRequestHeader(printWriter, url);
-            //getGetRequestResponse(socket, new InputStreamReader(socket.getInputStream()));
+            printWriter = new PrintWriter(socket.getOutputStream());
+
+            writeGetRequestHeader(printWriter, url);
+            getGetRequestResponse(socket, new InputStreamReader(socket.getInputStream()));
         }catch(Exception e){
             System.out.println("MKC1: Error in creating network connection");
             e.printStackTrace();
@@ -46,9 +51,9 @@ public class GetRequest implements iGetRequest {
     }
 
     private void writeGetRequestHeader(PrintWriter printWriter, String url) {
-        printWriter.println("GET / HTTP/1.1");
-        printWriter.println("Host: "+url);
-        printWriter.println("");
+        printWriter.print("GET /get?course=networking&assignment=1%27 HTTP/1.1\r\n");
+        printWriter.print("Host: "+url+"\r\n\r\n");
+        printWriter.print("");
         printWriter.flush();
     }
 }
