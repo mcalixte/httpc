@@ -36,10 +36,6 @@ public class GetRequest implements Runnable, iRequest {
     boolean verbose;
 
 
-    public GetRequest(){
-    }
-
-
     public void sendRequest() {
 
         try{
@@ -51,16 +47,16 @@ public class GetRequest implements Runnable, iRequest {
             writeRequest(printWriter, parsedData.get("Host"), parsedData.get("Path"));
             getRequestResponse(socket, socket.getInputStream());
 
-        }catch(Exception e){
-            System.out.println("Error in creating network connection");
-            e.printStackTrace();
+        }catch(MalformedURLException e){
+            System.out.println("Error in forming the URL");
+        }
+        catch(Exception e){
+            System.out.println("Error in establishing socket connection");
         }
         finally {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    // TODO Remove stack traces
-                    e.printStackTrace();
                    System.out.println("Error in making GET Request");
                 }
                 printWriter.flush();
