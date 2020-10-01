@@ -1,0 +1,10 @@
+Interfaces/iRequest.java
+ Interfaces.iRequest
+PostRequest/PostRequest.java
+ PostRequest.PostRequest
+Entry.java
+ Entry
+GetRequest/GetRequest.java
+ GetRequest.GetRequest
+httpc/Httpc.java
+ httpc.Httpc
