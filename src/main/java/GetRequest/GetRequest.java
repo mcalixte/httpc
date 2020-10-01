@@ -9,7 +9,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 @CommandLine.Command(name = "GET")
@@ -17,6 +22,8 @@ public class GetRequest implements Runnable, iRequest {
     //Network objects
     private Socket socket;
     private PrintWriter printWriter;
+    private List<String> response;
+    private HashMap<String, String> parsedData;
 
     //Command Line related objects
     @CommandLine.Parameters
@@ -36,11 +43,12 @@ public class GetRequest implements Runnable, iRequest {
     public void sendRequest() {
 
         try{
-            InetAddress inetAddress = InetAddress.getByName(url);
+            parsedData = parseUrlInput(url);
+            InetAddress inetAddress = InetAddress.getByName(parsedData.get("Host"));
             socket = new Socket(inetAddress, 80);
             printWriter = new PrintWriter(socket.getOutputStream());
 
-            writeRequest(printWriter, url, "");
+            writeRequest(printWriter, parsedData.get("Host"), parsedData.get("Path"));
             getRequestResponse(socket, socket.getInputStream());
 
         }catch(Exception e){
@@ -51,23 +59,53 @@ public class GetRequest implements Runnable, iRequest {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
+                    // TODO Remove stack traces
                     e.printStackTrace();
+                   System.out.println("Error in making GET Request");
                 }
                 printWriter.flush();
         }
     }
 
+    private HashMap<String, String> parseUrlInput(String url) throws MalformedURLException {
+        HashMap<String, String> parsedMap = new HashMap<>();
+        URL aURL = new URL(url);
+        parsedMap.put("Host", aURL.getHost());
+        parsedMap.put("Path", aURL.getPath());
+
+        System.out.println("Fetching from Host: "+parsedMap.get("Host")+" ...");
+        System.out.println("specified path: "+parsedMap.get("Path")+" ...");
+
+        return parsedMap;
+    }
+
     public void getRequestResponse(Socket socket, InputStream stream) {
         Scanner in = new Scanner(stream);
-        while(in.hasNextLine()){
-            System.out.println(in.nextLine());
+        if(verbose){
+            while(in.hasNextLine()){
+                System.out.println(in.nextLine());
+            }
+        }
+        else{
+            response = new ArrayList<>();
+            while(in.hasNextLine()){
+                response.add(in.nextLine());
+            }
+            parseVerboseResponse(response);
+        }
+
+    }
+
+    private void parseVerboseResponse(List<String> response) {
+        List<String> parsedResponse = response.subList(response.indexOf("")+1, response.size());
+        for(String string : parsedResponse){
+            System.out.println(string);
         }
     }
 
-    public void writeRequest(PrintWriter printWriter, String url, String ending) {
-        printWriter.print("GET / HTTP/1.1\r\n");
-        printWriter.print("Host: "+url+"\r\n\r\n");
+    public void writeRequest(PrintWriter printWriter, String host, String path) {
+        printWriter.print("GET "+path+" HTTP/1.1\r\n");
+        printWriter.print("Host: "+host+"\r\n\r\n");
         if(headers != null){
             for(String header : headers){
                 printWriter.print(header);
