@@ -101,13 +101,15 @@ public class GetRequest implements Runnable, iRequest {
 
     public void writeRequest(PrintWriter printWriter, String host, String path) {
         printWriter.print("GET "+path+" HTTP/1.1\r\n");
-        printWriter.print("Host: "+host+"\r\n\r\n");
+        printWriter.print("Host: "+host+"\r\n");
         if(headers != null){
             for(String header : headers){
-                printWriter.print(header);
+                printWriter.print(header+"\r\n");
             }
         }
+        printWriter.print("\r\n");
         printWriter.print("");
+
         printWriter.flush();
     }
 
@@ -115,5 +117,6 @@ public class GetRequest implements Runnable, iRequest {
     public void run() {
         System.out.println("Sending GET request ...\r\n\r\n");
         sendRequest();
+        System.exit(0);
     }
 }
