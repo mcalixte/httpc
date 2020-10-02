@@ -35,10 +35,10 @@ public class PostRequest implements Runnable, iRequest {
     @CommandLine.Option(names = {"-v", "--verbose"}, description = "verbose mode will include the response header")
     boolean verbose;
 	
-	@CommandLine.Option(names = {"-d", "--data"}, description = "data to be added to the body of the request")
+	@CommandLine.Option(names = {"-d", "--data"}, description = "inline data to be added to the body of the request")
     String data;
 	
-	@CommandLine.Option(names = {"-f", "--file"}, description = "data to be added to the body of the request")
+	@CommandLine.Option(names = {"-f", "--file"}, description = "file data to be added to the body of the request")
     String file;
 	
     @Override
