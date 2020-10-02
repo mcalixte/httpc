@@ -68,10 +68,6 @@ public class GetRequest implements Runnable, iRequest {
         URL aURL = new URL(url);
         parsedMap.put("Host", aURL.getHost());
         parsedMap.put("Path", aURL.getPath());
-
-        System.out.println("Fetching from Host: "+parsedMap.get("Host")+" ...");
-        System.out.println("specified path: "+parsedMap.get("Path")+" ...");
-
         return parsedMap;
     }
 
@@ -84,6 +80,7 @@ public class GetRequest implements Runnable, iRequest {
         }
         else{
             response = new ArrayList<>();
+            System.out.println("\r\nGetting the response from server");
             while(in.hasNextLine()){
                 response.add(in.nextLine());
             }
@@ -101,19 +98,20 @@ public class GetRequest implements Runnable, iRequest {
 
     public void writeRequest(PrintWriter printWriter, String host, String path) {
         printWriter.print("GET "+path+" HTTP/1.1\r\n");
-        printWriter.print("Host: "+host+"\r\n\r\n");
+        printWriter.print("Host: "+host+"\r\n");
         if(headers != null){
             for(String header : headers){
-                printWriter.print(header);
+                printWriter.print(header+"\r\n");
             }
         }
+        printWriter.print("\r\n");
         printWriter.print("");
         printWriter.flush();
     }
 
     @Override
     public void run() {
-        System.out.println("Sending GET request ...\r\n\r\n");
         sendRequest();
+        System.exit(0);
     }
 }
