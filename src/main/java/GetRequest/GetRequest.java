@@ -80,6 +80,7 @@ public class GetRequest implements Runnable, iRequest {
         }
         else{
             response = new ArrayList<>();
+            System.out.println("\r\nGetting the response from server");
             while(in.hasNextLine()){
                 response.add(in.nextLine());
             }
