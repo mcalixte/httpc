@@ -3,6 +3,8 @@ package PostRequest;
 import Interfaces.iRequest;
 import picocli.CommandLine;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -36,8 +38,16 @@ public class PostRequest implements Runnable, iRequest {
 	@CommandLine.Option(names = {"-d", "--data"}, description = "data to be added to the body of the request")
     String data;
 	
+	@CommandLine.Option(names = {"-f", "--file"}, description = "data to be added to the body of the request")
+    String file;
+	
     @Override
     public void run() {
+    	if (data != null && file != null) {
+    		System.out.println("Error: cannot run httpc with both inline and file data");
+    		System.exit(1);
+    	}
+    	
         System.out.println("Sending POST request ...");
         sendRequest();
     }
@@ -101,9 +111,33 @@ public class PostRequest implements Runnable, iRequest {
     		}
     	}
     	
+    	// --- Add data to the request ---// 
     	if (data != null) {
     		request.append("Content-Length:" + data.length() + "\r\n\r\n");
     		request.append(data);
+    	}
+    	else if (file != null) {
+    		try {
+    			StringBuilder fileData = new StringBuilder();
+    			Scanner fileReader = new Scanner(new File(file));
+    			while (fileReader.hasNextLine()) {
+    				fileData.append(fileReader.nextLine());
+    			}
+    			fileReader.close();
+    			
+    			if (fileData.length() > 0) {
+    	    		request.append("Content-Length:" + fileData.length() + "\r\n\r\n");
+    	    		request.append(fileData);
+    			}
+    			else {
+    				// handles the case of an empty file
+    	    		request.append("\r\n\r\n");
+    			}
+    		}
+    		catch (FileNotFoundException e) {
+    			System.out.println(e.getMessage());
+    			System.exit(1);
+    		}
     	}
     	else {
     		request.append("\r\n\r\n");
