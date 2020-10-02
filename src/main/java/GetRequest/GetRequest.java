@@ -68,10 +68,6 @@ public class GetRequest implements Runnable, iRequest {
         URL aURL = new URL(url);
         parsedMap.put("Host", aURL.getHost());
         parsedMap.put("Path", aURL.getPath());
-
-        System.out.println("Fetching from Host: "+parsedMap.get("Host")+" ...");
-        System.out.println("specified path: "+parsedMap.get("Path")+" ...");
-
         return parsedMap;
     }
 
@@ -109,13 +105,11 @@ public class GetRequest implements Runnable, iRequest {
         }
         printWriter.print("\r\n");
         printWriter.print("");
-
         printWriter.flush();
     }
 
     @Override
     public void run() {
-        System.out.println("Sending GET request ...\r\n\r\n");
         sendRequest();
         System.exit(0);
     }
