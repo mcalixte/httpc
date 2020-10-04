@@ -4,6 +4,7 @@ import Interfaces.iRequest;
 import PostRequest.PostRequest;
 import picocli.CommandLine;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,6 +35,9 @@ public class GetRequest implements Runnable, iRequest {
 
     @CommandLine.Option(names = {"-v", "--verbose"}, description = "verbose mode will include the response header")
     boolean verbose;
+    
+    @CommandLine.Option(names = {"-o", "--output"}, description = "output file to write the body of the response to")
+    String output;
 
 
     public void sendRequest() {
@@ -72,21 +76,37 @@ public class GetRequest implements Runnable, iRequest {
     }
 
     public void getRequestResponse(Socket socket, InputStream stream) {
-        Scanner in = new Scanner(stream);
-        if(verbose){
-            while(in.hasNextLine()){
-                System.out.println(in.nextLine());
-            }
-        }
-        else{
-            response = new ArrayList<>();
-            System.out.println("\r\nGetting the response from server");
-            while(in.hasNextLine()){
-                response.add(in.nextLine());
-            }
-            parseVerboseResponse(response);
-        }
-
+    	Scanner in = new Scanner(stream);
+    	
+    	List<String> response = new ArrayList<>();
+    	while(in.hasNextLine()){
+    		response.add(in.nextLine());
+    	}
+    	List<String> responseBody	 = response.subList(response.indexOf("") + 1, response.size());
+    	
+    	if (verbose) {
+    		for (String responseLine : response) {
+    			System.out.println(responseLine);
+    		}
+    	}
+    	else {
+    		for (String responseLine : responseBody) {
+    			System.out.println(responseLine);
+    		}
+    	}
+    	
+    	if (output != null) {
+    		try {
+    			FileWriter outputFileWriter = new FileWriter(output);
+    			for (String responseLine : responseBody) {
+    				outputFileWriter.write(responseLine + "\n");
+    			}
+    			outputFileWriter.close();
+    		}
+    		catch (IOException e) {
+    			System.out.println(e.getMessage());
+    		}
+    	}
     }
 
     private void parseVerboseResponse(List<String> response) {

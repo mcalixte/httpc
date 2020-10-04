@@ -5,6 +5,7 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -40,6 +41,9 @@ public class PostRequest implements Runnable, iRequest {
 	
 	@CommandLine.Option(names = {"-f", "--file"}, description = "file data to be added to the body of the request")
     String file;
+	
+	@CommandLine.Option(names = {"-o", "--output"}, description = "output file to write the body of the response to")
+    String output;
 	
     @Override
     public void run() {
@@ -85,18 +89,36 @@ public class PostRequest implements Runnable, iRequest {
     @Override
     public void getRequestResponse(Socket socket, InputStream stream) {
     	Scanner in = new Scanner(stream);
-        if (verbose) {
-            while (in.hasNextLine()) {
-                System.out.println(in.nextLine());
-            }
-        }
-        else {
-            response = new ArrayList<>();
-            while(in.hasNextLine()){
-                response.add(in.nextLine());
-            }
-            parseVerboseResponse(response);
-        }
+    	
+    	List<String> response = new ArrayList<>();
+    	while(in.hasNextLine()){
+    		response.add(in.nextLine());
+    	}
+    	List<String> responseBody	 = response.subList(response.indexOf("") + 1, response.size());
+    	
+    	if (verbose) {
+    		for (String responseLine : response) {
+    			System.out.println(responseLine);
+    		}
+    	}
+    	else {
+    		for (String responseLine : responseBody) {
+    			System.out.println(responseLine);
+    		}
+    	}
+    	
+    	if (output != null) {
+    		try {
+    			FileWriter outputFileWriter = new FileWriter(output);
+    			for (String responseLine : responseBody) {
+    				outputFileWriter.write(responseLine + "\n");
+    			}
+    			outputFileWriter.close();
+    		}
+    		catch (IOException e) {
+    			System.out.println(e.getMessage());
+    		}
+    	}
     }
 
     @Override
